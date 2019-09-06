@@ -1,1 +1,5 @@
+# Included in devcontainer, uncomment when deployed.
+# cx_Oracle
+# oci
+
 # Place any additional Python libraries required that can be found on the [Python Package Index](https://pypi.org/)
