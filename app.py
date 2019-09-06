@@ -32,8 +32,8 @@ def executeDatabaseCommand(config, action):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Manage OCI resources.')
-    parser.add_argument('-c', '--config', metavar='Configuration file path', required=True)
-    parser.add_argument('-x', '--action', metavar='Action', choices=['status', 'start', 'stop'], default=STATUS_ACTION)
+    parser.add_argument('-c', '--config', metavar='<CONFIGURATION_FILE_PATH>', required=True)
+    parser.add_argument('-x', '--action', metavar='<ACTION>', choices=['status', 'start', 'stop'], default=STATUS_ACTION)
     args = parser.parse_args()
 
     try:
