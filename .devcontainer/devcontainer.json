@@ -16,7 +16,7 @@
 		// "-v","/var/run/docker.sock:/var/run/docker.sock",
 
 		// Uncomment the next line to mount the user's .oci directory that contains the OCI API key and config files.
-		// "-v", "${env:HOME}${env:USERPROFILE}/.oci:/home/vscode/.oci",
+		"-v", "${env:HOME}${env:USERPROFILE}/.oci:/home/vscode/.oci",
 
 		// Uncomment the next line if you will be using a ptrace-based debugger like C++, Go, and Rust.
 		// "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"

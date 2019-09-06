@@ -1,29 +1,51 @@
-import cx_Oracle
-import os
+import oci
+import json
+import sys
+import argparse
 
-DB_HOST = os.environ["DB_HOST"]
-DB_PORT = os.environ["DB_PORT"]
-DB_SERVICE_NAME = os.environ["DB_SERVICE_NAME"]
+VALID_ACTIONS = ['START', 'STOP', 'STATUS']
+START_ACTION = 'START'
+STOP_ACTION = 'STOP'
+STATUS_ACTION = 'STATUS'
+CAN_START = ['STOPPED']
+CAN_STOP = ['AVAILABLE']
 
-CONNECT_STRING = DB_HOST + ":" + DB_PORT + "/" + DB_SERVICE_NAME
+def executeDatabaseCommand(config, action):
+    databaseClient = oci.database.DatabaseClient(config)
 
-## Open a connection pool:
-pool = cx_Oracle.SessionPool(dsn=CONNECT_STRING, externalauth=True, 
-    homogeneous=False, min=2, max=5, increment=1)
-connection = pool.acquire()
+    print('Processing Database Systems...')
 
-## Open a connection without creating a pool:
-# connection = cx_Oracle.connect(dsn=CONNECT_STRING)
+    for db in workspace['databases']:
+        response = databaseClient.list_db_nodes(
+            compartment_id=db['compartment_id']
+            , db_system_id=db['db_system_id'])
+        for dbNode in response.data:
+            if (action == START_ACTION and dbNode.lifecycle_state in CAN_START) \
+            or (action == STOP_ACTION and dbNode.lifecycle_state in CAN_STOP):
+                databaseClient.db_node_action(db_node_id=dbNode.id, action = action)
+                print('[ACTION] Starting...' if action == START_ACTION else '[ACTION] Stopping...' + dbNode.id)
+            else:
+                if action != STATUS_ACTION:
+                    print('[ACTION] Skipping...' + dbNode.id)
+            
+            print('ocid: ' + dbNode.id + '. Current state: ' + dbNode.lifecycle_state)
 
-## Get a cursor, execute a query and then output the result to console.
-cur = connection.cursor()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Manage OCI resources.')
+    parser.add_argument('-c', '--config', metavar='Configuration file path', required=True)
+    parser.add_argument('-x', '--action', metavar='Action', choices=['status', 'start', 'stop'], default=STATUS_ACTION)
+    args = parser.parse_args()
 
-for row in cur.execute("select banner from v$version"):
-    print(row[0])
+    try:
+        workspaceFilePath = args.config
+        action = args.action.upper()
 
-## Closing the connection pool
-pool.release(connection)
-pool.close()
+        with open(workspaceFilePath, 'r') as workspaceFile:
+            workspace = json.load(workspaceFile)
 
-## 
-# connection.close()
+        config = oci.config.from_file(workspace['configFile'], workspace['profile'])
+        
+        executeDatabaseCommand(config, action)
+    except:
+        parser.usage()
+        sys.exit(1)

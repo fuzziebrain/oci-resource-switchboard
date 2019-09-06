@@ -213,3 +213,4 @@ $RECYCLE.BIN/
 *.ora
 .wallets
 .oci
+*.json
