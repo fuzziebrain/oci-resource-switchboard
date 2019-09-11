@@ -14,7 +14,14 @@ Sample configuration file:
 {
     "configFile": "~/.oci/config",
     "profile": "DEFAULT",
-    "computes": [],
+    "computes": [
+        {
+            "instance_id": "ocid1.instance.oc1.xxxxx"
+        },
+        {
+            "instance_id": "ocid1.instance.oc1.xxxxx"
+        }
+    ],
     "databases": [
         { 
             "compartment_id": "ocid1.compartment.oc1..xxxxx",
